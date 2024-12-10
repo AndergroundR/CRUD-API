@@ -1,7 +1,7 @@
 from flask import Flask
 from config import Config
 from models import db
-from routes import routes
+from routes import item_routes
 
 app = Flask(__name__)
 
@@ -16,7 +16,9 @@ with app.app_context():
 
 @app.route('/')
 def index():
+    """Endpoint inicial da aplicação, retorna 'CRUD API'."""
     return "CRUD API"
 
 if __name__ == "__main__":
+    """Executa a aplicação Flask em modo de desenvolvimento."""
     app.run(debug=True)
