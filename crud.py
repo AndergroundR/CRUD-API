@@ -20,5 +20,4 @@ def index():
     return "CRUD API"
 
 if __name__ == "__main__":
-    """Executa a aplicação Flask em modo de desenvolvimento."""
-    app.run(debug=True)
+     app.run(host='0.0.0.0', port=8080, debug=True)
