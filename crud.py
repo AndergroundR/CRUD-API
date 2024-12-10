@@ -63,5 +63,21 @@ def save_item():
 
     return jsonify(new_item.json()), 201
 
+# 4. Remover item
+@app.delete("/items/<int:id>")
+def remove_item(id):
+    global items  # Usando 'items', que é a lista que armazena os itens
+    item = next((i for i in items if i.id == id), None)  # Buscando o item pelo id
+
+    if not item:
+        # Se o item não for encontrado, retornamos uma resposta 404
+        return jsonify({"erro": "Item não encontrado"}), 404
+
+    # Removendo o item encontrado
+    items = [i for i in items if i.id != id]
+
+    # Retornamos uma mensagem de sucesso
+    return jsonify({"message": "Item removido com sucesso"}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
