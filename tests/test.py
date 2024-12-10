@@ -4,7 +4,6 @@ from models import db, ItemModel
 
 @pytest.fixture
 def client():
-
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['TESTING'] = True
 
@@ -15,7 +14,14 @@ def client():
         db.drop_all()
 
 def test_create_item(client):
+    """
+        #1.
 
+        Descrição: Caso de teste para criar um novo item com dados válidos.
+
+        resposta: Código de status 201. / Retorno dos dados do item com nome correto.
+
+    """
     data = {
         "name": "Item 1",
         "value": 50,
@@ -32,6 +38,13 @@ def test_create_item(client):
     assert json_data['isElectronic'] is True
 
 def test_get_items(client):
+    """
+        #2.
+
+        Descrição: Caso de teste para listar todos os itens no banco de dados.
+
+        resposta: Código de status 200. / Retorno da lista de itens.
+    """
     data = {
         "name": "Item 2",
         "value": 100,
@@ -48,6 +61,14 @@ def test_get_items(client):
     assert json_data[0]['name'] == "Item 2"
 
 def test_update_item(client):
+    """
+        #3.
+
+        Descrição: Caso de teste para atualizar um item pelo ID.
+
+        resposta: Código de status 200. / Retorno dos dados do item atualizado.
+
+    """
     data = {
         "name": "Item 3",
         "value": 150,
@@ -71,7 +92,14 @@ def test_update_item(client):
     assert json_data['isElectronic'] is False
 
 def test_delete_item(client):
+    """
+        #4.
 
+        Descrição: Caso de teste para deletar um item pelo ID.
+
+        resposta: Código de status 200. / Retorno de mensagem de sucesso.
+
+    """
     data = {
         "name": "Item 4",
         "value": 300,
