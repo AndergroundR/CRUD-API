@@ -63,5 +63,21 @@ def save_item():
 
     return jsonify(new_item.json()), 201
 
+@app.put("/items/<int:item_id>")
+def edit_item(item_id):
+    # Encontrar o item pela ID
+    item = next((item for item in items if item.id == item_id), None)
+
+    if item is None:
+        return jsonify({"error": "Item não encontrado"}), 404
+
+    # Atualizar os campos do item
+    item_data = request.get_json()
+    item.name = item_data.get("name", item.name)
+    item.value = item_data.get("value", item.value)
+    item.isElectronic = item_data.get("isElectronic", item.isElectronic)
+
+    return jsonify(item.json()), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
