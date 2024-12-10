@@ -1,15 +1,21 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Lista de objetos para armazenar os itens
-items = []
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'
+db = SQLAlchemy(app)
 
 # Definindo o modelo de dados para os itens
-class ItemModel:
+class ItemModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    creation_date = db.Column(db.String(30), nullable=False)
+    isElectronic = db.Column(db.Boolean, nullable=False)
+
     def __init__(self, name, value, creation_date, isElectronic):
-        self.id = len(items) + 1  # Atribuindo um id ao itens
         self.name = name
         self.value = value
         self.creation_date = creation_date
@@ -24,10 +30,9 @@ class ItemModel:
             "isElectronic": self.isElectronic
         }
 
-# Populando a lista de itens iniciais
-items.append(ItemModel("Item 1", 50, "2024-12-10 08:00:00", True))
-items.append(ItemModel("Item 2", 56, "2024-12-11 09:00:00", False))
-items.append(ItemModel("Item 3", 69, "2024-12-12 10:00:00", True))
+# Inicializando o banco de dados
+with app.app_context():
+    db.create_all()  # Criando tabelas
 
 # Rota inicial
 @app.route('/')
@@ -37,6 +42,8 @@ def index():
 # 1. Listar itens
 @app.get("/items")
 def list_items():
+    items = ItemModel.query.all()  # Consulta todos os itens no banco
+
     # Verifica se a lista está vazia
     if not items:
         # Retorna uma mensagem e um status 404 se não houver itens
@@ -59,17 +66,18 @@ def save_item():
     creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     new_item = ItemModel(name, value, creation_date, isElectronic)
-    items.append(new_item)
+    db.session.add(new_item)  # Adiciona o novo item ao banco
+    db.session.commit()  # Salva a alteração no banco
+
 
     return jsonify(new_item.json()), 201
 
 
 @app.put("/items/<int:item_id>")
 def edit_item(item_id):
-    # Encontrar o item pela ID
-    item = next((item for item in items if item.id == item_id), None)
+    item = ItemModel.query.get(item_id)  # Busca o item pelo id no banco
 
-    if item is None:
+    if not item:
         return jsonify({"error": "Item não encontrado"}), 404
 
     # Atualizar os campos do item
@@ -78,20 +86,19 @@ def edit_item(item_id):
     item.value = item_data.get("value", item.value)
     item.isElectronic = item_data.get("isElectronic", item.isElectronic)
 
+    db.session.commit()
     return jsonify(item.json()), 200
-  
+
 # 4. Remover item
 @app.delete("/items/<int:id>")
 def remove_item(id):
-    global items  # Usando 'items', que é a lista que armazena os itens
-    item = next((i for i in items if i.id == id), None)  # Buscando o item pelo id
+    item = ItemModel.query.get(id)
 
     if not item:
-        # Se o item não for encontrado, retornamos uma resposta 404
         return jsonify({"erro": "Item não encontrado"}), 404
 
-    # Removendo o item encontrado
-    items = [i for i in items if i.id != id]
+    db.session.delete(item)
+    db.session.commit()
 
     # Retornamos uma mensagem de sucesso
     return jsonify({"message": "Item removido com sucesso"}), 200
