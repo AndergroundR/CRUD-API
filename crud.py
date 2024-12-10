@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from models import db
+from models.models import db
 from routes import routes
 
 app = Flask(__name__)

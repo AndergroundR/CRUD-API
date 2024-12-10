@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from datetime import datetime
-from models import db, ItemModel
+from models.models import db, ItemModel
 
 def list_items():
     """
@@ -11,7 +11,7 @@ def list_items():
 
     """
     items = ItemModel.query.all()
-    
+
     if not items:
         return jsonify({"message": "Nenhum item encontrado"}), 404
 
